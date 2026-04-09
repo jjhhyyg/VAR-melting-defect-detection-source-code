@@ -1,165 +1,161 @@
-# VAR Molten Pool Video Analysis System
+# VAR Melting Defect Detection Source Code
 
 [简体中文](README.zh.md) | English
 
-> Intelligent welding pool video analysis system based on deep learning
+> Source code repository for the VAR molten pool video analysis system.
 
-## 📋 Project Overview
+Repository URL: `https://github.com/jjhhyyg/VAR-melting-defect-detection-source-code.git`
 
-This is a complete video analysis platform for detecting and analyzing anomalous events in VAR (Vacuum Arc Remelting) molten pool videos.
+## Overview
 
-### Tech Stack
+This repository contains the full source code for a VAR molten pool video analysis system. It is organized as a main repository plus three Git submodules:
 
-- **Frontend**: Nuxt 4 + Vue 3 + TypeScript
-- **Backend**: Spring Boot 3 + PostgreSQL + Redis
-- **AI Engine**: Flask + PyTorch + YOLO11
-- **Message Queue**: RabbitMQ
+- `frontend`: Nuxt 4 + Vue 3 + TypeScript web application
+- `backend`: Spring Boot 3 + PostgreSQL + Redis + RabbitMQ backend
+- `ai-processor`: Flask + PyTorch + YOLO11 analysis engine
 
-### Core Features
+The system flow is:
 
-- Video upload and management (supports up to 2GB)
-- Asynchronous task processing based on RabbitMQ
-- YOLO11 object detection + BoT-SORT tracking
-- Automatic detection of anomalous events like electrode adhesion and glow
-- Generate annotated result videos
-- Real-time progress tracking
+1. The frontend uploads a video and creates a task.
+2. The backend stores metadata and video files.
+3. The backend sends an analysis message to RabbitMQ.
+4. The AI processor consumes the message, preprocesses and analyzes the video, then pushes results back to the backend.
+5. The backend persists results and pushes real-time updates to the frontend through WebSocket.
 
----
+## Repository Structure
 
-## 🚀 Quick Start
+```text
+codes/
+├── backend/                  # Git submodule: Spring Boot backend
+├── frontend/                 # Git submodule: Nuxt frontend
+├── ai-processor/             # Git submodule: Flask + YOLO analysis engine
+├── docs/                     # Handover and operation documents
+├── env/                      # Environment templates and environment mapping
+├── scripts/                  # Environment switching and helper scripts
+├── storage/                  # Shared storage for uploaded and generated files
+├── docker-compose.dev.yml    # Development infrastructure only
+├── docker-compose.prod.yml   # Production deployment (GPU)
+├── docker-compose.prod.cpu.yml
+└── docker-compose.yml        # Generated file, do not edit manually
+```
 
-### 1. Clone the Repository
+## Clone Correctly
+
+This project uses Git submodules. A plain `git clone` is not enough.
 
 ```bash
-# Clone the main repository and initialize all submodules
-git clone --recurse-submodules https://github.com/jjhhyyg/var-v2.git
-cd var-v2
+git clone --recurse-submodules https://github.com/jjhhyyg/VAR-melting-defect-detection-source-code.git
+cd VAR-melting-defect-detection-source-code
+```
 
-# Or clone the main repository first, then initialize submodules
-git clone https://github.com/jjhhyyg/var-v2.git
-cd var-v2
+If you already cloned the repository without submodules:
+
+```bash
 git submodule update --init --recursive
 ```
 
-### 2. Development Environment Quick Start
+When you modify code inside `backend`, `frontend`, or `ai-processor`, you must commit inside that submodule first, then commit the updated submodule pointer in the main repository.
 
-#### Step 1: Configure Environment Variables
+## Three Required Stages
+
+Do not treat "service starts successfully" as "ready for production". This project must be handled in three stages:
+
+1. **Development**
+   Set up the local environment, generate `.env` files, and run the services locally.
+2. **Testing**
+   Verify infrastructure, health checks, upload flow, task start, MQ consumption, result callback, and frontend display.
+3. **Deployment**
+   Deploy to production only after local testing passes.
+
+## Quick Start
+
+### 1. Generate environment files
 
 ```bash
-# Linux/macOS
 ./scripts/use-env.sh dev
-
-# Windows PowerShell
-.\scripts\use-env.ps1 dev
-
-# Windows CMD
-scripts\use-env.cmd dev
 ```
 
-> For first-time use, please modify the configuration in `env/*/.env.development` based on `env/*/.env.example`
+This script generates:
 
-#### Step 2: Start Infrastructure (PostgreSQL, Redis, RabbitMQ)
+- `.env` for Docker Compose
+- `backend/.env`
+- `frontend/.env`
+- `ai-processor/.env`
+
+### 2. Start development infrastructure
 
 ```bash
-docker-compose -f docker-compose.dev.yml up -d
+docker compose -f docker-compose.dev.yml up -d
 ```
 
-#### Step 3: Start Services
+This starts PostgreSQL, Redis, and RabbitMQ for local development. Application services are expected to run locally.
 
-##### Backend Service
+### 3. Run application services locally
+
+Backend:
 
 ```bash
 cd backend
 ./mvnw spring-boot:run
-# Service runs at http://localhost:8080
 ```
 
-##### Frontend Application
+Frontend:
 
 ```bash
 cd frontend
 npm install
 npm run dev
-# Service runs at http://localhost:3000
 ```
 
-##### AI Processing Module
+AI processor:
 
 ```bash
 cd ai-processor
 pip install -r requirements.txt
 python app.py
-# Service runs at http://localhost:5000
 ```
 
-### 3. Production Deployment (Docker)
+Default local endpoints:
 
-#### Step 1: Configure Production Environment Variables
+- Frontend: `http://localhost:3000`
+- Backend: `http://localhost:8080`
+- AI processor: `http://localhost:5000`
+- RabbitMQ management UI: `http://localhost:15672`
 
-```bash
-# Linux/macOS
-./scripts/use-env.sh prod
+## Deployment Notes
 
-# Windows PowerShell
-.\scripts\use-env.ps1 prod
+- GPU production deployment uses `docker-compose.prod.yml`
+- CPU production deployment uses `docker-compose.prod.cpu.yml`
+- `docker-compose.yml` is an auto-generated file and must not be edited manually
+- `backend/Dockerfile` expects a prebuilt JAR by default
+- `backend/Dockerfile.build` performs the build inside Docker when needed
 
-# Windows CMD
-scripts\use-env.cmd prod
-```
+Before production deployment:
 
-> ⚠️ For production environment, be sure to modify sensitive information in `env/*/.env.production` (database passwords, JWT secrets, etc.)
+1. switch to production environment with `./scripts/use-env.sh prod`
+2. confirm `ai-processor/weights/best.pt` exists
+3. complete local testing successfully
+4. choose GPU or CPU deployment path deliberately
 
-#### Step 2: Prepare AI Model Weight Files
+## Documentation
 
-Ensure YOLO model weight file is placed in the correct location:
+- Handover, development, testing, and deployment guide:
+  [`docs/项目接手、开发测试与部署指南.md`](docs/项目接手、开发测试与部署指南.md)
+- Environment configuration guide:
+  [`env/README.md`](env/README.md)
+- Backend Docker build details:
+  [`backend/DOCKER.md`](backend/DOCKER.md)
 
-```bash
-# Ensure weight file exists
-ls ai-processor/weights/best.pt
-```
+Submodule READMEs:
 
-#### Step 3: One-Click Deployment with Docker Compose
+- [`backend/README.md`](backend/README.md)
+- [`frontend/README.md`](frontend/README.md)
+- [`ai-processor/README.md`](ai-processor/README.md)
 
-```bash
-# Build and start all services (including PostgreSQL, Redis, RabbitMQ, Backend, Frontend, AI-Processor)
-# Use docker-compose.prod.cpu.yml if no GPU available
-docker-compose -f docker-compose.prod.yml up -d --build
+## Critical Rule
 
-# View service status
-docker-compose -f docker-compose.prod.yml ps
+Do not deploy this project to production before the local testing checklist has passed. The detailed checklist is defined in [`docs/项目接手、开发测试与部署指南.md`](docs/项目接手、开发测试与部署指南.md).
 
-# View service logs
-docker-compose -f docker-compose.prod.yml logs -f
+## License
 
-# Stop all services
-docker-compose -f docker-compose.prod.yml down
-```
-
-After deployment, service access addresses:
-
-- Frontend: <http://localhost:8848>
-- Backend API: <http://localhost:8080>
-- AI Processing Module: <http://localhost:5000>
-- RabbitMQ Management Interface: <http://localhost:15672>
-
----
-
-## 📚 More Documentation
-
-- **Detailed Configuration Guide**: See [`env/README.md`](env/README.md)
-- **Git Submodule Management**: See README in each subproject
-  - [backend/](backend/)
-  - [frontend/](frontend/)
-  - [ai-processor/](ai-processor/)
-
----
-
-## 📄 License
-
-This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0) - see the [LICENSE](LICENSE) file for details.
-
-**Important:** Any modified version of this software used over a network must make the source code available to users.
-
----
-
-**Last Updated**: 2025-10-13
+This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0).
