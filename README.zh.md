@@ -26,7 +26,6 @@ codes/
 ├── frontend/       # Git submodule：Nuxt + Tauri 桌面端
 ├── ai-processor/   # Git submodule：桌面 worker + YOLO 分析链路
 ├── docs/           # macOS 发布指南、功能验证清单等文档
-├── storage/        # 本地历史测试数据和媒体文件
 ├── .codex/skills/  # 项目级 Codex skills
 └── AGENTS.md       # 项目协作规则
 ```

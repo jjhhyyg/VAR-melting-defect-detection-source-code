@@ -26,7 +26,6 @@ codes/
 ├── frontend/       # Git submodule: Nuxt + Tauri desktop app
 ├── ai-processor/   # Git submodule: desktop worker + YOLO analysis pipeline
 ├── docs/           # macOS release guide, functional verification checklist
-├── storage/        # Local historical test data and media files
 ├── .codex/skills/  # Project-level Codex skills
 └── AGENTS.md       # Collaboration rules
 ```

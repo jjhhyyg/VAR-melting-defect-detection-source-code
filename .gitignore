@@ -7,29 +7,11 @@
 .env.shared
 
 # 模块环境配置文件（实际使用的配置）
-backend/.env
 frontend/.env
 ai-processor/.env
 
-# 保留 env/ 目录中的模板文件
-# !env/**/.env.example
-# !env/**/.env.development
-# !env/**/.env.production
-
-# 存储目录（运行时生成的文件）
-storage/videos/
-storage/result_videos/
-storage/preprocessed_videos/
-storage/temp/
-storage/tracking_results/
-
-# Docker 中间件数据目录（开发环境）
-.docker-data/
-
-# 旧的中间件数据目录（已迁移到 .docker-data）
-storage/postgres-data/
-storage/redis-data/
-storage/rabbitmq-data/
+# 旧架构遗留或临时运行数据
+storage/
 
 # 操作系统文件
 .DS_Store
@@ -63,6 +45,6 @@ logs/
 .claude/
 
 # ==================== 子模块会有自己的 .gitignore ====================
-# backend/, frontend/, ai-processor/ 的忽略规则在各自目录中定义
+# frontend/, ai-processor/ 的忽略规则在各自目录中定义
 
 docker-compose.yml
