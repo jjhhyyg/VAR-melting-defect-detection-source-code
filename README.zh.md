@@ -141,6 +141,8 @@ python app.py
 
 - 项目接手、开发、测试、部署主文档：
   [`docs/项目接手、开发测试与部署指南.md`](docs/项目接手、开发测试与部署指南.md)
+- macOS 桌面端发布指南：
+  [`docs/macOS桌面端发布指南.md`](docs/macOS桌面端发布指南.md)
 - 环境配置说明：
   [`env/README.md`](env/README.md)
 - 后端 Docker 构建说明：

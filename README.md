@@ -141,6 +141,8 @@ Before production deployment:
 
 - Handover, development, testing, and deployment guide:
   [`docs/项目接手、开发测试与部署指南.md`](docs/项目接手、开发测试与部署指南.md)
+- macOS desktop release guide:
+  [`docs/macOS桌面端发布指南.md`](docs/macOS桌面端发布指南.md)
 - Environment configuration guide:
   [`env/README.md`](env/README.md)
 - Backend Docker build details:
