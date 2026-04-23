@@ -50,6 +50,8 @@ npm run desktop:build
 - 生成 macOS `.app` 和 `.dmg`
 - 把 `resources/models/**/*` 和 `resources/runtime/**/*` 复制进 app bundle
 
+`frontend/src-tauri/resources/models/` 和 `frontend/src-tauri/resources/runtime/` 是打包生成物，不提交到 Git；它们由 `npm run desktop:build-worker` 在构建时刷新。
+
 这一层不是本仓库的正式发布入口。尤其不要在 `APPLE_SIGNING_IDENTITY`、`APPLE_API_KEY`、`APPLE_API_ISSUER` 或 `APPLE_API_KEY_PATH` 已导出的 shell 里直接跑裸 `tauri build`，否则 Tauri 可能在 runtime 嵌套二进制重签名前抢先发起 notarization。
 
 ### 2.3 发布编排层：`scripts/macos-release.mjs`
