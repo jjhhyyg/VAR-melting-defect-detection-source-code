@@ -1,162 +1,93 @@
-# VAR Melting Defect Detection Source Code
+# VAR Molten Pool Analysis macOS Desktop Source Code
 
 [简体中文](README.zh.md) | English
 
-> Source code repository for the VAR molten pool video analysis system.
-
-Repository URL: `https://github.com/jjhhyyg/VAR-melting-defect-detection-source-code.git`
+> This repository now targets the macOS Tauri desktop architecture. The Nuxt/Tauri app manages local tasks, while the Python worker performs local video analysis. The legacy Java backend, Docker Compose, RabbitMQ, Redis, and PostgreSQL deployment architecture has been removed.
 
 ## Overview
 
-This repository contains the full source code for a VAR molten pool video analysis system. It is organized as a main repository plus three Git submodules:
+The repository still uses a main repository plus Git submodules, but only the desktop-relevant modules remain:
 
-- `frontend`: Nuxt 4 + Vue 3 + TypeScript web application
-- `backend`: Spring Boot 3 + PostgreSQL + Redis + RabbitMQ backend
-- `ai-processor`: Flask + PyTorch + YOLO11 analysis engine
+- `frontend`: Nuxt 4 + Tauri 2 desktop app
+- `ai-processor`: desktop worker and YOLO analysis pipeline
 
-The system flow is:
+Current flow:
 
-1. The frontend uploads a video and creates a task.
-2. The backend stores metadata and video files.
-3. The backend sends an analysis message to RabbitMQ.
-4. The AI processor consumes the message, preprocesses and analyzes the video, then pushes results back to the backend.
-5. The backend persists results and pushes real-time updates to the frontend through WebSocket.
+1. The user imports one or more local videos in the macOS desktop UI.
+2. The Tauri/Rust core writes tasks to local SQLite and maintains a FIFO queue.
+3. The scheduler starts local workers according to max concurrency and macOS resource limits.
+4. The Python worker reports progress, result data, and file paths through stdout NDJSON events.
+5. The desktop app updates the task table, detail page, result videos, and report data.
 
 ## Repository Structure
 
 ```text
 codes/
-├── backend/                  # Git submodule: Spring Boot backend
-├── frontend/                 # Git submodule: Nuxt frontend
-├── ai-processor/             # Git submodule: Flask + YOLO analysis engine
-├── docs/                     # Handover and operation documents
-├── env/                      # Environment templates and environment mapping
-├── scripts/                  # Environment switching and helper scripts
-├── storage/                  # Shared storage for uploaded and generated files
-├── docker-compose.dev.yml    # Development infrastructure only
-├── docker-compose.prod.yml   # Production deployment (GPU)
-├── docker-compose.prod.cpu.yml
-└── docker-compose.yml        # Generated file, do not edit manually
+├── frontend/       # Git submodule: Nuxt + Tauri desktop app
+├── ai-processor/   # Git submodule: desktop worker + YOLO analysis pipeline
+├── docs/           # macOS release guide, functional verification checklist
+├── storage/        # Local historical test data and media files
+├── .codex/skills/  # Project-level Codex skills
+└── AGENTS.md       # Collaboration rules
 ```
 
 ## Clone Correctly
-
-This project uses Git submodules. A plain `git clone` is not enough.
 
 ```bash
 git clone --recurse-submodules https://github.com/jjhhyyg/VAR-melting-defect-detection-source-code.git
 cd VAR-melting-defect-detection-source-code
 ```
 
-If you already cloned the repository without submodules:
+If you already cloned without submodules:
 
 ```bash
 git submodule update --init --recursive
 ```
 
-When you modify code inside `backend`, `frontend`, or `ai-processor`, you must commit inside that submodule first, then commit the updated submodule pointer in the main repository.
+When modifying `frontend` or `ai-processor`, commit inside that submodule first, then commit the updated submodule pointer in the main repository.
 
-## Three Required Stages
-
-Do not treat "service starts successfully" as "ready for production". This project must be handled in three stages:
-
-1. **Development**
-   Set up the local environment, generate `.env` files, and run the services locally.
-2. **Testing**
-   Verify infrastructure, health checks, upload flow, task start, MQ consumption, result callback, and frontend display.
-3. **Deployment**
-   Deploy to production only after local testing passes.
-
-## Quick Start
-
-### 1. Generate environment files
-
-```bash
-./scripts/use-env.sh dev
-```
-
-This script generates:
-
-- `.env` for Docker Compose
-- `backend/.env`
-- `frontend/.env`
-- `ai-processor/.env`
-
-### 2. Start development infrastructure
-
-```bash
-docker compose -f docker-compose.dev.yml up -d
-```
-
-This starts PostgreSQL, Redis, and RabbitMQ for local development. Application services are expected to run locally.
-
-### 3. Run application services locally
-
-Backend:
-
-```bash
-cd backend
-./mvnw spring-boot:run
-```
-
-Frontend:
+## macOS Desktop Development
 
 ```bash
 cd frontend
 npm install
-npm run dev
+npm run desktop:dev
 ```
 
-AI processor:
+Common checks:
+
+```bash
+cd frontend
+npm run typecheck
+cargo check --manifest-path src-tauri/Cargo.toml
+```
+
+AI worker check:
 
 ```bash
 cd ai-processor
-pip install -r requirements.txt
-python app.py
+python3 -m py_compile desktop_worker.py utils/callback.py analyzer/video_processor.py
+python desktop_worker.py --self-check
 ```
 
-Default local endpoints:
+## macOS Release
 
-- Frontend: `http://localhost:3000`
-- Backend: `http://localhost:8080`
-- AI processor: `http://localhost:5000`
-- RabbitMQ management UI: `http://localhost:15672`
+All desktop release commands must be run from `frontend/`:
 
-## Deployment Notes
+```bash
+npm run desktop:macos:ad-hoc
+npm run desktop:macos:release-local
+npm run desktop:macos:release-public
+```
 
-- GPU production deployment uses `docker-compose.prod.yml`
-- CPU production deployment uses `docker-compose.prod.cpu.yml`
-- `docker-compose.yml` is an auto-generated file and must not be edited manually
-- `backend/Dockerfile` expects a prebuilt JAR by default
-- `backend/Dockerfile.build` performs the build inside Docker when needed
-
-Before production deployment:
-
-1. switch to production environment with `./scripts/use-env.sh prod`
-2. confirm `ai-processor/weights/best.pt` exists
-3. complete local testing successfully
-4. choose GPU or CPU deployment path deliberately
+Do not mix `tauri dev`, raw `tauri build`, and the formal release scripts. See [`docs/macOS桌面端发布指南.md`](docs/macOS桌面端发布指南.md).
 
 ## Documentation
 
-- Handover, development, testing, and deployment guide:
-  [`docs/项目接手、开发测试与部署指南.md`](docs/项目接手、开发测试与部署指南.md)
-- macOS desktop release guide:
-  [`docs/macOS桌面端发布指南.md`](docs/macOS桌面端发布指南.md)
-- Environment configuration guide:
-  [`env/README.md`](env/README.md)
-- Backend Docker build details:
-  [`backend/DOCKER.md`](backend/DOCKER.md)
-
-Submodule READMEs:
-
-- [`backend/README.md`](backend/README.md)
+- [`docs/桌面端完整功能验证清单.md`](docs/桌面端完整功能验证清单.md)
+- [`docs/macOS桌面端发布指南.md`](docs/macOS桌面端发布指南.md)
 - [`frontend/README.md`](frontend/README.md)
 - [`ai-processor/README.md`](ai-processor/README.md)
-
-## Critical Rule
-
-Do not deploy this project to production before the local testing checklist has passed. The detailed checklist is defined in [`docs/项目接手、开发测试与部署指南.md`](docs/项目接手、开发测试与部署指南.md).
 
 ## License
 
