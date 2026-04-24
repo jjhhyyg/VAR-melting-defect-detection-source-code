@@ -2,7 +2,7 @@
 
 简体中文 | [English](README.md)
 
-> 当前仓库已经收敛为 macOS Tauri 桌面端形态：Nuxt/Tauri 前端负责本地任务管理，Python worker 负责本地视频分析，不再保留旧的 Java 后端、Docker Compose、RabbitMQ/Redis/PostgreSQL 部署架构。
+> 当前仓库已经收敛为 macOS Tauri 桌面端形态：Nuxt/Tauri 前端负责本地任务管理，Python worker 通过本地 job 文件和 stdout NDJSON 事件负责本地视频分析。
 
 ## 项目概览
 
@@ -85,6 +85,7 @@ npm run desktop:macos:release-public
 
 - [`docs/桌面端完整功能验证清单.md`](docs/桌面端完整功能验证清单.md)
 - [`docs/macOS桌面端发布指南.md`](docs/macOS桌面端发布指南.md)
+- [`docs/视频分析原生化重构需求澄清.md`](docs/视频分析原生化重构需求澄清.md)
 - [`frontend/README.zh.md`](frontend/README.zh.md)
 - [`ai-processor/README.zh.md`](ai-processor/README.zh.md)
 

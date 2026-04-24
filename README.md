@@ -2,7 +2,7 @@
 
 [简体中文](README.zh.md) | English
 
-> This repository now targets the macOS Tauri desktop architecture. The Nuxt/Tauri app manages local tasks, while the Python worker performs local video analysis. The legacy Java backend, Docker Compose, RabbitMQ, Redis, and PostgreSQL deployment architecture has been removed.
+> This repository targets the macOS Tauri desktop architecture. The Nuxt/Tauri app manages local tasks, while the Python worker performs local video analysis through local job files and stdout NDJSON events.
 
 ## Overview
 
@@ -85,6 +85,7 @@ Do not mix `tauri dev`, raw `tauri build`, and the formal release scripts. See [
 
 - [`docs/桌面端完整功能验证清单.md`](docs/桌面端完整功能验证清单.md)
 - [`docs/macOS桌面端发布指南.md`](docs/macOS桌面端发布指南.md)
+- [`docs/视频分析原生化重构需求澄清.md`](docs/视频分析原生化重构需求澄清.md)
 - [`frontend/README.md`](frontend/README.md)
 - [`ai-processor/README.md`](ai-processor/README.md)
 
