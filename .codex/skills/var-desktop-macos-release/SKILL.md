@@ -33,6 +33,7 @@ Use for interactive local development only.
 
 - Starts the frontend dev flow through Tauri dev mode.
 - Uses the Tauri dev configuration path, not the release bundle path.
+- Must prefer the source worker at `ai-processor/desktop_worker.py` when it exists, even if a packaged worker is present under `src-tauri/resources/runtime` or `target/debug/resources/runtime`.
 - Does not produce a distributable `.app` or `.dmg`.
 - Does not perform Developer ID release signing, notarization, stapling, or Gatekeeper validation.
 
@@ -47,6 +48,7 @@ npm run desktop:dev
 Use for raw build-and-bundle work, not as the final public release command in this repository.
 
 - Runs `beforeBuildCommand`, which in this project means `npm run generate && npm run desktop:build-worker`.
+- Must rebuild the packaged worker after any `ai-processor/` source change before judging release behavior. A successful dev run only proves the source worker path.
 - Builds the Rust Tauri app.
 - Bundles macOS artifacts such as `.app` and `.dmg`.
 - Copies configured resources such as `resources/models/**/*` and `resources/runtime/**/*` into the app bundle.
@@ -105,6 +107,15 @@ npm run desktop:macos:release-public
 - If the goal is to inspect whether the project can build and bundle at all, use Layer 2.
 - If the goal is to produce anything another machine should install or Gatekeeper should trust, use Layer 3.
 - In this repository, asking whether raw `tauri build` is "enough for release" usually means the wrong layer is being used.
+
+## Worker Runtime Rule
+
+Keep the development and release worker paths separate.
+
+- `npm run desktop:dev` / `tauri dev` must exercise the source sidecar: `ai-processor/desktop_worker.py`.
+- Packaged workers under `src-tauri/resources/runtime/**/worker/desktop_worker/` are release inputs, not the source of truth during dev debugging.
+- Before any release-like build, rebuild the packaged worker with `npm run desktop:build-worker` or use a release script that runs it through `beforeBuildCommand`.
+- If a bug appears in packaged builds but not dev, first check whether the packaged worker is stale relative to `ai-processor/`.
 
 ## Dependency Installation
 
