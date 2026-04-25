@@ -1,0 +1,12 @@
+{
+  "sourceVideoFps": 25,
+  "expectedEvents": [
+    {
+      "eventType": "CROWN",
+      "startFrame": 639,
+      "endFrame": 730,
+      "startTime": 25.6,
+      "endTime": 29.2
+    }
+  ]
+}

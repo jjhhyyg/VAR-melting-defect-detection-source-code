@@ -1,0 +1,12 @@
+{
+  "sourceVideoFps": 25,
+  "expectedEvents": [
+    {
+      "eventType": "ADHESION",
+      "startFrame": 0,
+      "endFrame": 1531,
+      "startTime": 0,
+      "endTime": 61.2
+    }
+  ]
+}

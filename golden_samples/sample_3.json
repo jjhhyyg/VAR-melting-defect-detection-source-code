@@ -1,0 +1,12 @@
+{
+  "sourceVideoFps": 25,
+  "expectedEvents": [
+    {
+      "eventType": "SIDE_ARC",
+      "startFrame": 230,
+      "endFrame": 280,
+      "startTime":9.2,
+      "endTime": 11.2
+    }
+  ]
+}

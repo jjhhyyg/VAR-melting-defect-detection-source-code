@@ -1,0 +1,19 @@
+{
+  "sourceVideoFps": 25,
+  "expectedEvents": [
+    {
+      "eventType": "GLOW",
+      "startFrame": 0,
+      "endFrame": 108,
+      "startTime": 0,
+      "endTime": 4.3
+    },
+    {
+      "eventType": "CREEPING_ARC",
+      "startFrame": 83,
+      "endFrame": 789,
+      "startTime": 3.3,
+      "endTime": 31.6
+    }
+  ]
+}
