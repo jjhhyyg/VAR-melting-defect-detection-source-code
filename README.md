@@ -1,8 +1,8 @@
-# VAR Molten Pool Analysis macOS Desktop Source Code
+# VAR Molten Pool Analysis Desktop Source Code
 
 [简体中文](README.zh.md) | English
 
-> This repository targets the macOS Tauri desktop architecture. The Nuxt/Tauri app manages local tasks, while the Python worker performs local video analysis through local job files and stdout NDJSON events.
+> This repository targets the Tauri desktop architecture. The Nuxt/Tauri app manages local tasks, while the Python worker performs local video analysis through local job files and stdout NDJSON events.
 
 ## Overview
 
@@ -13,9 +13,9 @@ The repository still uses a main repository plus Git submodules, but only the de
 
 Current flow:
 
-1. The user imports one or more local videos in the macOS desktop UI.
+1. The user imports one or more local videos in the desktop UI.
 2. The Tauri/Rust core writes tasks to local SQLite and maintains a FIFO queue.
-3. The scheduler starts local workers according to max concurrency and macOS resource limits.
+3. The scheduler starts local workers according to max concurrency and resource limits.
 4. The Python worker reports progress, result data, and file paths through stdout NDJSON events.
 5. The desktop app updates the task table, detail page, result videos, and report data.
 
@@ -81,10 +81,28 @@ npm run desktop:macos:release-public
 
 Do not mix `tauri dev`, raw `tauri build`, and the formal release scripts. See [`docs/macOS桌面端发布指南.md`](docs/macOS桌面端发布指南.md).
 
+## Windows Release
+
+Windows distribution uses two artifacts:
+
+- `VAR Desktop_0.1.0_x64-setup.exe`: the lightweight NSIS installer for the main app
+- `VAR-Desktop-CUDA-Runtime-windows-x64-0.1.0.zip`: the CUDA analysis runtime package
+
+Build the runtime package first, then build the installer:
+
+```powershell
+cd frontend
+npm run desktop:windows:runtime
+npm run desktop:windows:build
+```
+
+On first launch, or whenever the app version and runtime build id differ, the Windows app blocks the main UI until the matching runtime zip is imported. See [`docs/Windows桌面端发布指南.md`](docs/Windows桌面端发布指南.md).
+
 ## Documentation
 
 - [`docs/桌面端完整功能验证清单.md`](docs/桌面端完整功能验证清单.md)
 - [`docs/macOS桌面端发布指南.md`](docs/macOS桌面端发布指南.md)
+- [`docs/Windows桌面端发布指南.md`](docs/Windows桌面端发布指南.md)
 - [`docs/视频分析原生化重构需求澄清.md`](docs/视频分析原生化重构需求澄清.md)
 - [`frontend/README.md`](frontend/README.md)
 - [`ai-processor/README.md`](ai-processor/README.md)

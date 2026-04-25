@@ -1,8 +1,8 @@
-# VAR 熔池分析 macOS 桌面端源码仓库
+# VAR 熔池分析桌面端源码仓库
 
 简体中文 | [English](README.md)
 
-> 当前仓库已经收敛为 macOS Tauri 桌面端形态：Nuxt/Tauri 前端负责本地任务管理，Python worker 通过本地 job 文件和 stdout NDJSON 事件负责本地视频分析。
+> 当前仓库采用 Tauri 桌面端形态：Nuxt/Tauri 前端负责本地任务管理，Python worker 通过本地 job 文件和 stdout NDJSON 事件负责本地视频分析。
 
 ## 项目概览
 
@@ -13,9 +13,9 @@
 
 当前主链路：
 
-1. 用户在 macOS 桌面端批量导入本地视频
+1. 用户在桌面端批量导入本地视频
 2. Tauri/Rust 核心写入本地 SQLite 任务库并维护 FIFO 队列
-3. 调度器按最大并发数和 macOS 资源阈值启动本地 worker
+3. 调度器按最大并发数和资源阈值启动本地 worker
 4. Python worker 通过 stdout NDJSON 上报进度、结果和文件路径
 5. 桌面端更新任务表格、详情页、结果视频和报告数据
 
@@ -81,10 +81,28 @@ npm run desktop:macos:release-public
 
 不要把 `tauri dev`、raw `tauri build` 和正式发布脚本混用。完整规则见 [`docs/macOS桌面端发布指南.md`](docs/macOS桌面端发布指南.md)。
 
+## Windows 发布
+
+Windows 采用双包分发：
+
+- `VAR Desktop_0.1.0_x64-setup.exe`：主程序 NSIS 安装包，不内置 CUDA worker/runtime
+- `VAR-Desktop-CUDA-Runtime-windows-x64-0.1.0.zip`：CUDA 算法运行时包
+
+构建顺序：
+
+```powershell
+cd frontend
+npm run desktop:windows:runtime
+npm run desktop:windows:build
+```
+
+Windows 首次启动或 App 版本与 runtime build id 不一致时，会强制要求导入匹配的算法包 zip，否则不能进入主程序。完整规则见 [`docs/Windows桌面端发布指南.md`](docs/Windows桌面端发布指南.md)。
+
 ## 文档导航
 
 - [`docs/桌面端完整功能验证清单.md`](docs/桌面端完整功能验证清单.md)
 - [`docs/macOS桌面端发布指南.md`](docs/macOS桌面端发布指南.md)
+- [`docs/Windows桌面端发布指南.md`](docs/Windows桌面端发布指南.md)
 - [`docs/视频分析原生化重构需求澄清.md`](docs/视频分析原生化重构需求澄清.md)
 - [`frontend/README.zh.md`](frontend/README.zh.md)
 - [`ai-processor/README.zh.md`](ai-processor/README.zh.md)
