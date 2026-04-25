@@ -102,15 +102,15 @@ startFrame = max(0, f - radius)
 endFrame = min(totalFrames - 1, f + radius)
 ```
 
-5. 仅在同类别内部按 `startFrame` 排序并合并。
-6. 同类别区间满足以下条件时合并：
+1. 仅在同类别内部按 `startFrame` 排序并合并。
+2. 同类别区间满足以下条件时合并：
 
 ```text
 next.startFrame <= current.endFrame + 1
 ```
 
-7. 不同类别之间永不合并，即使时间范围重叠也保留独立事件。
-8. 合并后的事件需要保留解释信息：
+1. 不同类别之间永不合并，即使时间范围重叠也保留独立事件。
+2. 合并后的事件需要保留解释信息：
    - `defectClass`
    - `maxConfidence`
    - `evidenceFrames`
