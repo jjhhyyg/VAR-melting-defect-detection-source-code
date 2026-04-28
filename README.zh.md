@@ -9,22 +9,23 @@
 仓库仍采用主仓库 + Git submodule 组织方式，但只保留当前桌面端需要的两个子模块：
 
 - `frontend`：Nuxt 4 + Tauri 2 桌面端应用
-- `ai-processor`：桌面 worker 与 YOLO 分析链路
+- `ai-processor`：桌面 worker、结果汇总与 C++ ONNX GPU sidecar 调用链路
 
 当前主链路：
 
 1. 用户在桌面端批量导入本地视频
 2. Tauri/Rust 核心写入本地 SQLite 任务库并维护 FIFO 队列
 3. 调度器按最大并发数和资源阈值启动本地 worker
-4. Python worker 通过 stdout NDJSON 上报进度、结果和文件路径
-5. 桌面端更新任务表格、详情页、结果视频和报告数据
+4. Python worker 调用 GPU 预处理 sidecar 和 C++ ONNX CUDA analyzer，通过 stdout NDJSON 上报进度、结果和文件路径
+5. 桌面端更新任务表格、详情页、`detections.json` 前端 overlay 和报告数据
 
 ## 仓库结构
 
 ```text
 codes/
 ├── frontend/       # Git submodule：Nuxt + Tauri 桌面端
-├── ai-processor/   # Git submodule：桌面 worker + YOLO 分析链路
+├── ai-processor/   # Git submodule：桌面 worker + C++ ONNX GPU 分析链路
+├── gpu-analyzer/   # C++ GPU 预处理和 ONNX CUDA 分析 sidecar
 ├── docs/           # macOS 发布指南、功能验证清单等文档
 ├── .codex/skills/  # 项目级 Codex skills
 └── AGENTS.md       # 项目协作规则
@@ -69,6 +70,17 @@ python3 -m py_compile desktop_worker.py utils/callback.py analyzer/video_process
 python desktop_worker.py --self-check
 ```
 
+Windows ONNX/GPU 链路自检：
+
+```powershell
+cd frontend
+npm run desktop:build-gpu-sidecars
+src-tauri\resources\runtime\windows-x64\tools\var-gpu-preprocessor.exe --self-check
+src-tauri\resources\runtime\windows-x64\tools\var-video-analyzer.exe --self-check-onnx --model src-tauri\resources\models\best.onnx
+```
+
+`desktop:build-gpu-sidecars` 还会用 `golden_samples/sample_1.mp4` 执行一次真实 GPU 预处理烟测。GPU 预处理自检应包含 `opencvNvcodecEnabled:true`。
+
 ## macOS 发布
 
 所有桌面发布命令都从 `frontend/` 目录运行：
@@ -85,8 +97,8 @@ npm run desktop:macos:release-public
 
 Windows 采用双包分发：
 
-- `VAR Desktop_0.1.0_x64-setup.exe`：主程序 NSIS 安装包，不内置 CUDA worker/runtime
-- `VAR-Desktop-CUDA-Runtime-windows-x64-0.1.0.zip`：CUDA 算法运行时包
+- `VAR Desktop_<version>_x64-setup.exe`：主程序 NSIS 安装包，不内置 CUDA worker/runtime
+- `VAR-Desktop-CUDA-Runtime-windows-x64-<version>.zip`：CUDA 算法运行时包
 
 构建顺序：
 
@@ -96,6 +108,8 @@ npm run desktop:windows:runtime
 npm run desktop:windows:build
 ```
 
+`desktop:windows:runtime` 会依次执行 ONNX 导出、GPU sidecar 构建、Python worker 打包和 runtime zip 生成。导出、构建和运行时都要求 NVIDIA GPU/CUDA 链路可用；当前不提供 CPU fallback。
+
 Windows 首次启动或 App 版本与 runtime build id 不一致时，会强制要求导入匹配的算法包 zip，否则不能进入主程序。完整规则见 [`docs/Windows桌面端发布指南.md`](docs/Windows桌面端发布指南.md)。
 
 ## 文档导航
@@ -103,7 +117,9 @@ Windows 首次启动或 App 版本与 runtime build id 不一致时，会强制�
 - [`docs/桌面端完整功能验证清单.md`](docs/桌面端完整功能验证清单.md)
 - [`docs/macOS桌面端发布指南.md`](docs/macOS桌面端发布指南.md)
 - [`docs/Windows桌面端发布指南.md`](docs/Windows桌面端发布指南.md)
+- [`docs/instruction.md`](docs/instruction.md)
 - [`docs/视频分析原生化重构需求澄清.md`](docs/视频分析原生化重构需求澄清.md)
+- [`docs/Windows_C++_GPU_Analyzer_方案C.md`](docs/Windows_C++_GPU_Analyzer_方案C.md)
 - [`frontend/README.zh.md`](frontend/README.zh.md)
 - [`ai-processor/README.zh.md`](ai-processor/README.zh.md)
 

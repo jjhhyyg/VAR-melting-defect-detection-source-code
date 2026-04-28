@@ -44,6 +44,9 @@ logs/
 # Claude AI 对话缓存
 .claude/
 
+# Codex 本地自动生成环境配置
+.codex/environments/
+
 # ==================== 子模块会有自己的 .gitignore ====================
 # frontend/, ai-processor/ 的忽略规则在各自目录中定义
 
