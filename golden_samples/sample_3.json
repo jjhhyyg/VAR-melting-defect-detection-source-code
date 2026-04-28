@@ -4,9 +4,32 @@
     {
       "eventType": "SIDE_ARC",
       "startFrame": 230,
-      "endFrame": 280,
-      "startTime":9.2,
-      "endTime": 11.2
+      "endFrame": 281,
+      "startTime": 9.2,
+      "endTime": 11.24,
+      "metadata": {
+        "defectClass": "SIDE_ARC",
+        "maxConfidence": 0.933609,
+        "evidenceFrames": [
+          255,
+          256
+        ]
+      }
+    },
+    {
+      "eventType": "SIDE_ARC",
+      "startFrame": 1205,
+      "endFrame": 1256,
+      "startTime": 48.2,
+      "endTime": 50.24,
+      "metadata": {
+        "defectClass": "SIDE_ARC",
+        "maxConfidence": 0.872915,
+        "evidenceFrames": [
+          1230,
+          1231
+        ]
+      }
     }
   ]
 }
